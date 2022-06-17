@@ -4,26 +4,51 @@ using static System.IO.Path;
 using static System.Environment;
 using System.IO;
 
-static void WorkWithDrives()
+static void WorkWithDirectories()
 {
-    WriteLine("{0, -30} | {1, -10} | {2, -7} | {3,18} | {4, 18}",
-        "NAME", "TYPE", "FORMAT", "SIZE(BYTE)", "FREE SPACE");
+    // define a directory path for a new folder starting in the user's folder
+    string newFolder = Combine(CurrentDirectory,"NewFolder");
 
-    foreach (DriveInfo drive in DriveInfo.GetDrives())
-    {
-        if (drive.IsReady)
-        {
-            WriteLine("{0, -30} | {1, -10} | {2, -7} | {3,18:N0} | {4, 18:N0}",
-                    drive.Name, drive.DriveType, drive.DriveFormat, drive.TotalSize, drive.AvailableFreeSpace);
-        }
-        else
-        {
-            WriteLine("{0, -30} | {1, -10}", drive.Name, drive.DriveType);
-        }
-    }
+    WriteLine($"Working with: {newFolder}");
+
+    // check if it exists
+    WriteLine($"Does it exist? {Exists(newFolder)}");
+
+    // create directory
+    WriteLine("Creating it...");
+    CreateDirectory(newFolder);
+    WriteLine($"Does it exist? {Exists(newFolder)};");
+    Write("Confirm the directory exists, and then press Enter: ");
+    ReadLine();
+
+    // delete directory
+    WriteLine("Deleting it...");
+    Delete(newFolder, recursive: true);
+    WriteLine($"Does it exist {Exists(newFolder)}");
 }
 
-WorkWithDrives();
+WorkWithDirectories();  
+
+//static void WorkWithDrives()
+//{
+//    WriteLine("{0, -30} | {1, -10} | {2, -7} | {3,18} | {4, 18}",
+//        "NAME", "TYPE", "FORMAT", "SIZE(BYTE)", "FREE SPACE");
+
+//    foreach (DriveInfo drive in DriveInfo.GetDrives())
+//    {
+//        if (drive.IsReady)
+//        {
+//            WriteLine("{0, -30} | {1, -10} | {2, -7} | {3,18:N0} | {4, 18:N0}",
+//                    drive.Name, drive.DriveType, drive.DriveFormat, drive.TotalSize, drive.AvailableFreeSpace);
+//        }
+//        else
+//        {
+//            WriteLine("{0, -30} | {1, -10}", drive.Name, drive.DriveType);
+//        }
+//    }
+//}
+
+//WorkWithDrives();
 
 //static void OutputFileSystemInfo()
 //{
