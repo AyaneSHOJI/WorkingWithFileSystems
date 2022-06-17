@@ -4,47 +4,50 @@ using static System.IO.Path;
 using static System.Environment;
 using System.IO;
 
+static void WorkWithFiles()
+{
+    // define a directory path to output files 
+    string dir = Path.Combine(CurrentDirectory, "../../../NewFolder");
 
+    CreateDirectory(dir);
 
-//static void WorkWithFiles()
-//{
-//    // define a directory path to output files 
-//    string dir = Path.Combine(CurrentDirectory, "../../../NewFolder");
+    // define file paths
+    string textFile = Combine(dir, "Dummy.txt");
+    string backupfile = Combine(dir, "Dummy.bak");
 
-//    CreateDirectory(dir);
+    // Check if a file exists
+    WriteLine($"Does it exist? {File.Exists (textFile)}");
 
-//    // define file paths
-//    string textFile = Combine(dir, "Dummy.txt");
-//    string backupfile = Combine(dir, "Dummy.bak");
+    // create a new text file and write a line to it
+    StreamWriter textWriter = File.CreateText(textFile);
+    textWriter.WriteLine("Hello, C#!");
+    textWriter.Close();
 
-//    // Check if a file exists
-//    WriteLine($"Does it exist? {File.Exists (textFile)}");
+    WriteLine($"Does it exist? {File.Exists(textFile)}");
 
-//    // create a new text file and write a line to it
-//    StreamWriter textWriter = File.CreateText(textFile);
-//    textWriter.WriteLine("Hello, C#!");
-//    textWriter.Close();
+    // copy the file, and overwrite if it already exists
+    File.Copy(sourceFileName: textFile, destFileName: backupfile, overwrite: true);
+    WriteLine($"Does it exist? {File.Exists(backupfile)}");
 
-//    WriteLine($"Does it exist? {File.Exists(textFile)}");
+    // delete file
+    File.Delete(textFile);
+    WriteLine($"Does it exist? {File.Exists(textFile)}");
 
-//    // copy the file, and overwrite if it already exists
-//    File.Copy(sourceFileName: textFile, destFileName: backupfile, overwrite: true);
-//    WriteLine($"Does it exist? {File.Exists(backupfile)}");
+    // read from the text file backup
+    WriteLine($"Reading contents of {backupfile}");
+    StreamReader textReader = File.OpenText(backupfile);
+    WriteLine(textReader.ReadToEnd());
+    textReader.Close();
 
-//    // delete file
-//    File.Delete(textFile);
-//    WriteLine($"Does it exist? {File.Exists(textFile)}");
+    // test for getting parent
+    string parentInfo = GetParent(dir).ToString();
+    // do NOT forget close textWrite and textReader
 
-//    // read from the text file backup
-//    WriteLine($"Reading contents of {backupfile}");
-//    StreamReader textReader = File.OpenText(backupfile);
-//    WriteLine(textReader.ReadToEnd());
-//    textReader.Close();
+    WriteLine($"Folder Name : {GetDirectoryName(textFile)}");
+    WriteLine($"File Name : {GetFileName(textFile)}");
+}
 
-//    // do NOT forget close textWrite and textReader
-//}
-
-//WorkWithFiles();
+WorkWithFiles();
 
 
 //static void WorkWithDirectories()
