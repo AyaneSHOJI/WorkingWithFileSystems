@@ -4,52 +4,136 @@ using static System.IO.Path;
 using static System.Environment;
 using System.IO;
 using System.Xml;
+using System.IO.Compression;
 
-// XML is a software- and hardware-independent tool for storing and transporting data.
-static void WorkWithXml()
+
+// file 322 bytes, compressed file 150 bytes
+
+static void WorkWithCompression()
 {
-    // define a file to write to
-    string xmlFile = Combine(CurrentDirectory, "streams.xml");
+    string fileExt = "gzip";
+    // compress the XML output
+    string filePath = Combine(CurrentDirectory, $"streams.{fileExt}");
 
-    // create a file strem
-    FileStream xmlFileStream = File.Create(xmlFile);
+    FileStream file = File.Create(filePath);
 
-    // wrap the file stream in an XML writer helper and automatically indent nested elements
-    XmlWriter xml = XmlWriter.Create(xmlFileStream, new XmlWriterSettings() { Indent = true }); 
+    Stream compressor = new GZipStream(file, CompressionMode.Compress);
 
-    // write the XML declaratoin
-    xml.WriteStartDocument();
-
-    // write a root element
-    xml.WriteStartElement("callsigns");
-
-    // enumerate the string writing each one to the stream
-    foreach(string item in Viper.Callsigns)
+    using (compressor)
     {
-        xml.WriteElementString("callsign", item);
+        using (XmlWriter xml = XmlWriter.Create(compressor))
+        {
+            xml.WriteStartDocument();
+            xml.WriteStartElement("callsigns");
+
+            foreach(string item in Viper.Callsigns)
+            {
+                xml.WriteElementString("callsign", item);
+            }
+
+            // the normal call to WriteEndElement is not necessary 
+        }
     }
 
-    // write the close root element
-    xml.WriteEndElement();
-
-    // close helper and stream
-    xml.Close();
-    xmlFileStream.Close();
-
-    // output all the contents of the file
+    // output all the contents of the compressed file
     WriteLine("{0} contains {1:N0} bytes",
-        arg0: xmlFile,
-        arg1: new FileInfo(xmlFile).Length);
+            arg0: filePath,
+            arg1: new FileInfo(filePath).Length);
 
-    WriteLine(File.ReadAllText(xmlFile));
+    WriteLine($"The compressed contents : {File.ReadAllText(filePath)}");
+
+    WriteLine("Reading the compressed XML file:");
+    file = File.Open(filePath, FileMode.Open);
+
+    Stream decompressor = new GZipStream((Stream)file, CompressionMode.Decompress);
+    using (decompressor)
+    {
+        using(XmlReader reader = XmlReader.Create(decompressor))
+        {
+            while (reader.Read())
+            {
+                // check if we are on an element node named callsign
+                if ((reader.NodeType == XmlNodeType.Element) && (reader.Name == "callsign"))
+                {
+                    reader.Read();
+                    WriteLine($"{reader.Value}");
+                }
+            }
+        }
+    }
+}
+
+// XML is a software- and hardware-independent tool for storing and transporting data.
+static void WorkWithXml() 
+{ 
+
+    FileStream? xmlfileStream = null;
+    XmlWriter? xml = null;
+
+    try
+    {
+        // define a file to write to
+        string xmlFile = Combine(CurrentDirectory, "streams.xml");
+
+        // create a file strem
+        xmlfileStream = File.Create(xmlFile);
+
+        // wrap the file stream in an XML writer helper and automatically indent nested elements
+        xml = XmlWriter.Create(xmlfileStream, new XmlWriterSettings() { Indent = true });
+
+        // write the XML declaratoin
+        xml.WriteStartDocument();
+
+        // write a root element
+        xml.WriteStartElement("callsigns");
+
+        // enumerate the string writing each one to the stream
+        foreach (string item in Viper.Callsigns)
+        {
+            xml.WriteElementString("callsign", item);
+        }
+
+        // write the close root element
+        xml.WriteEndElement();
+
+        // close helper and stream
+        xml.Close();
+        xmlfileStream.Close();
+
+        // output all the contents of the file
+        WriteLine("{0} contains {1:N0} bytes",
+            arg0: xmlFile,
+            arg1: new FileInfo(xmlFile).Length);
+
+        WriteLine(File.ReadAllText(xmlFile));
+    }
+    catch (Exception ex)
+    {
+        // if the path doesn't exist the exception will be caught
+        WriteLine($"{ex.GetType()} says {ex.Message}");
+    }
+    finally
+    {
+        if(xml != null)
+        {
+            xml.Dispose();
+            WriteLine("The XML writer's unmanaged resources have been disposed.");
+            if(xml != null)
+            {
+                xmlfileStream.Dispose();
+                WriteLine("The file stream's unmanages resources have been disposed.");
+            }
+        }
+    }
 }
 
 WorkWithXml();
+WorkWithCompression();
 
 static void WorkWithText()
 {
     // define a file to write to
-    string textFile = Combine(CurrentDirectory, "strems.txt");
+    string textFile = Combine(CurrentDirectory, "streams.txt");
 
     // create a text file and return a helper writer
     StreamWriter text = File.CreateText(textFile);
@@ -75,7 +159,7 @@ static class Viper
     // define an array of Viper pilot call signs
     public static string[] Callsigns = new string[]
     {
-        "Husker","Starbuck","Appollo","Boomer","Bulldog", "Athena", "Helo", "Racertrack"
+        "Husker", "Starbuck", "Appollo", "Boomer", "Bulldog",  "Athena",  "Helo",  "Racertrack"
     };
 }
 
