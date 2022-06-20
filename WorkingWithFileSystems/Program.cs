@@ -4,50 +4,88 @@ using static System.IO.Path;
 using static System.Environment;
 using System.IO;
 
-static void WorkWithFiles()
+static void WorkWithText()
 {
-    // define a directory path to output files 
-    string dir = Path.Combine(CurrentDirectory, "../../../NewFolder");
+    // define a file to write to
+    string textFile = Combine(CurrentDirectory, "strems.txt");
 
-    CreateDirectory(dir);
+    // create a text file and return a helper writer
+    StreamWriter text = File.CreateText(textFile);
 
-    // define file paths
-    string textFile = Combine(dir, "Dummy.txt");
-    string backupfile = Combine(dir, "Dummy.bak");
+    // enumerate the strings, writing each one to the stream on a separate line
+    foreach(string item in Viper.Callsigns)
+    {
+        text.WriteLine(item);
+    }
+    text.Close();
 
-    // Check if a file exists
-    WriteLine($"Does it exist? {File.Exists (textFile)}");
+    // output the contents of the file
+    WriteLine("{0} containes {1:N0} bytes.",
+        arg0: textFile,
+        arg1: new FileInfo(textFile).Length);
 
-    // create a new text file and write a line to it
-    StreamWriter textWriter = File.CreateText(textFile);
-    textWriter.WriteLine("Hello, C#!");
-    textWriter.Close();
-
-    WriteLine($"Does it exist? {File.Exists(textFile)}");
-
-    // copy the file, and overwrite if it already exists
-    File.Copy(sourceFileName: textFile, destFileName: backupfile, overwrite: true);
-    WriteLine($"Does it exist? {File.Exists(backupfile)}");
-
-    // delete file
-    File.Delete(textFile);
-    WriteLine($"Does it exist? {File.Exists(textFile)}");
-
-    // read from the text file backup
-    WriteLine($"Reading contents of {backupfile}");
-    StreamReader textReader = File.OpenText(backupfile);
-    WriteLine(textReader.ReadToEnd());
-    textReader.Close();
-
-    // test for getting parent
-    string parentInfo = GetParent(dir).ToString();
-    // do NOT forget close textWrite and textReader
-
-    WriteLine($"Folder Name : {GetDirectoryName(textFile)}");
-    WriteLine($"File Name : {GetFileName(textFile)}");
+    WriteLine(File.ReadAllText(textFile));
 }
 
-WorkWithFiles();
+WorkWithText();
+static class Viper
+{
+    // define an array of Viper pilot call signs
+    public static string[] Callsigns = new string[]
+    {
+        "Husker","Starbuck","Appollo","Boomer","Bulldog", "Athena", "Helo", "Racertrack"
+    };
+}
+
+
+
+//static void WorkWithFiles()
+//{
+//    // define a directory path to output files 
+//    string dir = Path.Combine(CurrentDirectory, "../../../NewFolder");
+
+//    CreateDirectory(dir);
+
+//    // define file paths
+//    string textFile = Combine(dir, "Dummy.txt");
+//    string backupfile = Combine(dir, "Dummy.bak");
+
+//    // Check if a file exists
+//    WriteLine($"Does it exist? {File.Exists (textFile)}");
+
+//    // create a new text file and write a line to it
+//    StreamWriter textWriter = File.CreateText(textFile);
+//    textWriter.WriteLine("Hello, C#!");
+//    textWriter.Close();
+
+//    WriteLine($"Does it exist? {File.Exists(textFile)}");
+
+//    // copy the file, and overwrite if it already exists
+//    File.Copy(sourceFileName: textFile, destFileName: backupfile, overwrite: true);
+//    WriteLine($"Does it exist? {File.Exists(backupfile)}");
+
+//    // delete file
+//    File.Delete(textFile);
+//    WriteLine($"Does it exist? {File.Exists(textFile)}");
+
+//    // read from the text file backup
+//    WriteLine($"Reading contents of {backupfile}");
+//    StreamReader textReader = File.OpenText(backupfile);
+//    WriteLine(textReader.ReadToEnd());
+//    textReader.Close();
+
+//    // test for getting parent
+//    string parentInfo = GetParent(dir).ToString();
+//    // do NOT forget close textWrite and textReader
+
+//    WriteLine($"Folder Name : {GetDirectoryName(textFile)}");
+//    WriteLine($"File Name : {GetFileName(textFile)}");
+
+//    FileInfo info = new(backupfile);
+//    WriteLine($"{backupfile} containes {info.Length} bytes. Last accessed {info.LastAccessTime}. Has readonly set to {info.IsReadOnly}");
+//}
+
+//WorkWithFiles();
 
 
 //static void WorkWithDirectories()
